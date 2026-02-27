@@ -1,0 +1,145 @@
+.hero-section {
+  background: white;
+  padding: 3rem 0 2rem;
+}
+
+.hero-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.hero-content {
+  text-align: center;
+}
+
+.hero-subtitle {
+  font-size: 0.875rem;
+  color: #666;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+
+.airplane-image {
+  margin: 2rem 0;
+}
+
+.airplane-image img {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+}
+
+.booking-form {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.trip-type-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.trip-tab {
+  background: #f5f5f5;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #666;
+}
+
+.trip-tab.active {
+  background: #7ec8e3;
+  color: white;
+  font-weight: 600;
+}
+
+.booking-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.location-select,
+.date-input {
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+}
+
+.search-btn {
+  background: #7ec8e3;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.3s;
+}
+
+.search-btn:hover {
+  background: #6bb8d3;
+}
+
+@media (max-width: 1024px) {
+  .booking-inputs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search-btn {
+    grid-column: span 2;
+    width: 100%;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .booking-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-type-tabs {
+    flex-direction: column;
+  }
+}

@@ -4,11 +4,12 @@ A minimal Python backend for predicting airport lounge occupancy and optimizing 
 
 ## Features
 
-- Synthetic hourly occupancy data generation with realistic patterns
+- Real airport passenger data processing and conversion to hourly lounge occupancy
 - Machine learning prediction using RandomForestRegressor
 - 6-hour iterative forecasting with lag features
-- Resource optimization (staff and food requirements)
-- FastAPI REST endpoint
+- Resource optimization (staff breakdown and food requirements)
+- Professional React dashboard with real-time data visualization
+- FastAPI REST endpoint with CORS support
 
 ## Setup
 
@@ -23,10 +24,16 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Generate data and train model:
+3. Load real data and train model:
 ```bash
 python setup.py
 ```
+
+This will:
+- Load `Air_Traffic_Passenger_Statistics.csv`
+- Convert monthly passenger data to hourly lounge occupancy
+- Train the prediction model
+- Save as `model.pkl`
 
 ## Run the Backend API
 
@@ -46,10 +53,14 @@ The API will be available at `http://localhost:8000`
 In a separate terminal:
 
 ```bash
-streamlit run app.py
+cd frontend
+npm install
+npm run dev
 ```
 
-The dashboard will open in your browser at `http://localhost:8501`
+The dashboard will open in your browser at `http://localhost:3000`
+
+See [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md) for detailed setup guide.
 
 ## API Endpoint
 
@@ -69,9 +80,20 @@ Returns 6-hour forecast with resource optimization.
 
 ## Project Structure
 
-- `data_generator.py` - Synthetic data generation
+- `data_loader.py` - Real dataset loading and preprocessing
+- `data_generator.py` - Synthetic data generation (fallback)
 - `features.py` - Feature engineering
 - `model.py` - Model training and forecasting
 - `optimizer.py` - Resource optimization logic
 - `main.py` - FastAPI application
+- `frontend/` - React dashboard application
 - `setup.py` - One-command setup script
+
+## Data Processing
+
+The system loads `Air_Traffic_Passenger_Statistics.csv` and:
+1. Aggregates monthly passenger counts
+2. Converts to hourly time series using interpolation
+3. Applies realistic hourly traffic patterns (morning/evening peaks)
+4. Calculates lounge occupancy (5% of total passengers)
+5. Generates features for ML prediction

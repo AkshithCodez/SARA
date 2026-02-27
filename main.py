@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from model import load_model, forecast_next_hours
 from optimizer import optimize_resources
@@ -6,19 +7,28 @@ import os
 
 app = FastAPI(title="SARA - Smart Airport Resource Allocator")
 
+# Enable CORS for React frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Vite and CRA default ports
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Load model at startup
 MODEL_PATH = 'model.pkl'
 DATA_PATH = 'data.csv'
 
 if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}. Run model.py first.")
+    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}. Run setup.py first.")
 
 model = load_model(MODEL_PATH)
 
 @app.get("/")
 def root():
     """Health check endpoint."""
-    return {"status": "SARA backend is running", "version": "1.0"}
+    return {"status": "SARA backend is running", "version": "2.0"}
 
 @app.get("/predict")
 def predict():
@@ -27,9 +37,11 @@ def predict():
     
     Returns:
         - forecast: List of predicted occupancy values for next 6 hours
-        - peak_hour_index: Index (0-5) of the hour with highest predicted occupancy
-        - staff_required: List of staff count needed for each hour
+        - confidence_margin: Confidence interval for each prediction
+        - risk_level: Risk assessment for each hour (low/medium/high)
+        - staff_required: Breakdown of staff by type (service, cleaning, reception)
         - food_required: List of food units needed for each hour
+        - estimated_cost: Total estimated operational cost
     """
     
     try:
@@ -47,9 +59,15 @@ def predict():
         
         return {
             "forecast": [round(val, 2) for val in forecast],
-            "peak_hour_index": optimization['peak_hour_index'],
-            "staff_required": optimization['staff_required'],
-            "food_required": [round(val, 2) for val in optimization['food_required']]
+            "confidence_margin": [round(val, 2) for val in optimization['confidence_margin']],
+            "risk_level": optimization['risk_level'],
+            "staff_required": {
+                "service": optimization['staff_required']['service'],
+                "cleaning": optimization['staff_required']['cleaning'],
+                "reception": optimization['staff_required']['reception']
+            },
+            "food_required": [round(val, 2) for val in optimization['food_required']],
+            "estimated_cost": optimization['estimated_cost']
         }
     
     except Exception as e:

@@ -1,7 +1,12 @@
 import pandas as pd
+import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestRegressor
 from features import create_features, prepare_training_data
+
+# Realistic bounds for lounge occupancy
+MIN_OCCUPANCY = 0
+MAX_OCCUPANCY = 300  # Maximum realistic lounge capacity
 
 def train_model(csv_path='data.csv'):
     """Train RandomForestRegressor on historical occupancy data."""
@@ -34,7 +39,10 @@ def load_model(path='model.pkl'):
     return joblib.load(path)
 
 def forecast_next_hours(model, last_data, hours=6):
-    """Forecast occupancy for the next N hours using iterative prediction."""
+    """
+    Forecast occupancy for the next N hours using iterative prediction.
+    Applies realistic bounds to ensure operational validity.
+    """
     
     predictions = []
     
@@ -70,12 +78,19 @@ def forecast_next_hours(model, last_data, hours=6):
         
         # Predict
         pred = model.predict(features)[0]
-        predictions.append(max(0, pred))  # Ensure non-negative
         
-        # Update lag values for next iteration
+        # Apply realistic bounds (clip to 0-300 range)
+        pred_clipped = np.clip(pred, MIN_OCCUPANCY, MAX_OCCUPANCY)
+        predictions.append(float(pred_clipped))
+        
+        # Update lag values for next iteration (use clipped value)
         lag_2 = lag_1
-        lag_1 = pred
-        recent_values.append(pred)
+        lag_1 = pred_clipped
+        recent_values.append(pred_clipped)
+    
+    # Safety check: warn if predictions are unrealistic
+    if max(predictions) > 500:
+        print(f"⚠️  WARNING: Forecast contains unrealistic values (max: {max(predictions):.2f})")
     
     return predictions
 

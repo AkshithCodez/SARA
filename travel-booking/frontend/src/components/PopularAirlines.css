@@ -1,0 +1,86 @@
+.popular-airlines {
+  padding: 4rem 0;
+  background: transparent;
+}
+
+.airlines-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.airlines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.airline-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
+}
+
+.airline-card:hover {
+  transform: translateY(-5px);
+}
+
+.airline-image {
+  height: 180px;
+  background: linear-gradient(135deg, #a8d5e2 0%, #7ec8e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.airline-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.airline-icon {
+  font-size: 4rem;
+}
+
+.airline-info {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.airline-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.view-btn {
+  background: #7ec8e3;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.3s;
+}
+
+.view-btn:hover {
+  background: #6bb8d3;
+}
+
+@media (max-width: 768px) {
+  .airlines-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
