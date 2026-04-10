@@ -10,6 +10,7 @@ from optimizer import optimize_resources
 # NEW: Routers
 from routers.lounge import router as lounge_router
 from routers.occupancy import router as occupancy_router
+from routers.auth import router as auth_router
 
 app = FastAPI(title="SARA - Smart Airport Resource Allocator")
 
@@ -27,6 +28,7 @@ app.add_middleware(
 # -------------------------------
 # Include Routers (NEW)
 # -------------------------------
+app.include_router(auth_router)
 app.include_router(lounge_router)
 app.include_router(occupancy_router)
 

@@ -129,3 +129,31 @@ class UserResponse(UserBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# Auth Schemas
+# =============================================================================
+
+
+class SignupRequest(BaseModel):
+    """Request schema for user signup."""
+
+    email: str = Field(..., max_length=255)
+    password: str = Field(..., min_length=6, max_length=255)
+    role: str = Field(..., max_length=50)
+    airline_id: int = Field(..., gt=0)
+
+
+class LoginRequest(BaseModel):
+    """Request schema for user login."""
+
+    email: str = Field(..., max_length=255)
+    password: str = Field(..., max_length=255)
+
+
+class TokenResponse(BaseModel):
+    """Response schema for authentication tokens."""
+
+    access_token: str
+    token_type: str = "bearer"
