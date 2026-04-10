@@ -1,0 +1,131 @@
+"""
+core/schemas.py
+===============
+SARA – Smart Airport Resource Analytics
+Pydantic Schemas
+
+Request/response validation models for FastAPI.
+Uses Pydantic v2 with ConfigDict for ORM mode.
+"""
+
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+# =============================================================================
+# Lounge Schemas
+# =============================================================================
+
+
+class LoungeBase(BaseModel):
+    """Base schema with common lounge fields."""
+
+    name: str = Field(..., max_length=255)
+    location: str = Field(..., max_length=255)
+    capacity: int = Field(..., gt=0)
+
+
+class LoungeCreate(LoungeBase):
+    """Schema for creating a new lounge."""
+
+    airline_id: int = Field(..., gt=0)
+
+
+class LoungeUpdate(BaseModel):
+    """Schema for updating a lounge (all fields optional)."""
+
+    name: Optional[str] = Field(None, max_length=255)
+    location: Optional[str] = Field(None, max_length=255)
+    capacity: Optional[int] = Field(None, gt=0)
+
+
+class LoungeResponse(LoungeBase):
+    """Schema for lounge responses."""
+
+    id: int
+    airline_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# OccupancyLog Schemas
+# =============================================================================
+
+
+class OccupancyLogBase(BaseModel):
+    """Base schema with common occupancy log fields."""
+
+    passenger_count: int = Field(..., ge=0)
+
+
+class OccupancyLogCreate(OccupancyLogBase):
+    """Schema for creating a new occupancy log entry."""
+
+    lounge_id: int = Field(..., gt=0)
+
+
+class OccupancyLogResponse(OccupancyLogBase):
+    """Schema for occupancy log responses."""
+
+    id: int
+    lounge_id: int
+    timestamp: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# Airline Schemas (for completeness)
+# =============================================================================
+
+
+class AirlineBase(BaseModel):
+    """Base schema with common airline fields."""
+
+    name: str = Field(..., max_length=255)
+
+
+class AirlineCreate(AirlineBase):
+    """Schema for creating a new airline."""
+
+
+class AirlineResponse(AirlineBase):
+    """Schema for airline responses."""
+
+    id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# User Schemas (for completeness)
+# =============================================================================
+
+
+class UserBase(BaseModel):
+    """Base schema with common user fields."""
+
+    email: str = Field(..., max_length=255)
+    role: str = Field(..., max_length=50)
+
+
+class UserCreate(UserBase):
+    """Schema for creating a new user."""
+
+    hashed_password: str = Field(..., max_length=255)
+    airline_id: int = Field(..., gt=0)
+
+
+class UserResponse(UserBase):
+    """Schema for user responses (excludes password)."""
+
+    id: int
+    airline_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
