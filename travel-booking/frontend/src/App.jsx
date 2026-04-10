@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { fetchPrediction } from './services/api'
-import Header from './components/Header'
+import { HeroSection } from './components/blocks/hero-section-2'
 import LoungeTraffic from './components/LoungeTraffic'
 import Staffing from './components/Staffing'
 import FoodOptimization from './components/FoodOptimization'
@@ -55,9 +55,12 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="main-content">
+    <div className="App min-h-screen bg-background text-foreground">
+      {/* New hero header with SARA tabs replaces the old Header component */}
+      <HeroSection activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Dashboard tab content — padded below the fixed nav */}
+      <main className="main-content pt-20 px-4 sm:px-6 max-w-7xl mx-auto">
         {renderTabContent()}
       </main>
     </div>

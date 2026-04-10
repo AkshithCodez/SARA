@@ -1,6 +1,6 @@
+/* App.css — kept minimal; layout is now handled by Tailwind in App.jsx */
 .App {
   min-height: 100vh;
-  background: #0B0F19;
 }
 
 .main-content {
