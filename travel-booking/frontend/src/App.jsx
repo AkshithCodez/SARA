@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { fetchPrediction } from './services/api'
 import { LandingPage } from './components/blocks/LandingPage'
 import { DashboardHeader } from './components/blocks/DashboardHeader'
-import { SaraDock } from './components/ui/dock'
 import LoungeTraffic from './components/LoungeTraffic'
 import Staffing from './components/Staffing'
 import FoodOptimization from './components/FoodOptimization'
@@ -14,10 +13,10 @@ import './App.css'
 
 function App() {
   const [showDashboard, setShowDashboard] = useState(false)
-  const [activeTab, setActiveTab] = useState('lounge')
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [activeTab, setActiveTab]         = useState('lounge')
+  const [data, setData]                   = useState(null)
+  const [loading, setLoading]             = useState(true)
+  const [error, setError]                 = useState(null)
 
   const loadData = async () => {
     setLoading(true)
@@ -32,9 +31,7 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  useEffect(() => { loadData() }, [])
 
   const renderTabContent = () => {
     if (loading) return <LoadingSpinner />
@@ -42,35 +39,39 @@ function App() {
     if (!data)   return null
 
     switch (activeTab) {
-      case 'lounge':   return <LoungeTraffic data={data} />
-      case 'staffing': return <Staffing data={data} />
+      case 'lounge':   return <LoungeTraffic   data={data} />
+      case 'staffing': return <Staffing         data={data} />
       case 'food':     return <FoodOptimization data={data} />
-      case 'risk':     return <RiskMonitoring data={data} />
+      case 'risk':     return <RiskMonitoring   data={data} />
       case 'customer': return <CustomerExperience data={data} />
-      default:         return <LoungeTraffic data={data} />
+      default:         return <LoungeTraffic   data={data} />
     }
   }
 
-  /* ── Landing page ── */
   if (!showDashboard) {
     return <LandingPage onEnterDashboard={() => setShowDashboard(true)} />
   }
 
-  /* ── Dashboard ── */
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
-      {/* Minimal top bar: logo + back + live */}
-      <DashboardHeader onBackToLanding={() => setShowDashboard(false)} />
+      {/* Two-row fixed header: logo row + tab row */}
+      <DashboardHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onBackToLanding={() => setShowDashboard(false)}
+      />
 
-      {/* Tab content — top padding for navbar, bottom padding for dock */}
-      <main className="pt-16 pb-32 min-h-[calc(100vh-64px)]">
+      {/*
+        pt-[104px] accounts for both header rows:
+          Row 1 (logo) ≈ 58px
+          Row 2 (tabs) ≈ 46px
+        No bottom padding needed — dock is gone from the bottom.
+      */}
+      <main className="pt-[104px] min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {renderTabContent()}
         </div>
       </main>
-
-      {/* Floating bottom dock — 5 SARA tabs */}
-      <SaraDock activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   )
 }
