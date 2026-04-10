@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { fetchPrediction } from './services/api'
-import { HeroSection } from './components/blocks/hero-section-2'
+import { LandingPage } from './components/blocks/LandingPage'
+import { DashboardHeader } from './components/blocks/DashboardHeader'
 import LoungeTraffic from './components/LoungeTraffic'
 import Staffing from './components/Staffing'
 import FoodOptimization from './components/FoodOptimization'
@@ -11,57 +12,61 @@ import ErrorMessage from './components/ErrorMessage'
 import './App.css'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('lounge');
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [activeTab, setActiveTab] = useState('lounge')
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const loadData = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const result = await fetchPrediction();
-      setData(result);
+      const result = await fetchPrediction()
+      setData(result)
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData()
+  }, [])
 
   const renderTabContent = () => {
-    if (loading) return <LoadingSpinner />;
-    if (error) return <ErrorMessage message={error} onRetry={loadData} />;
-    if (!data) return null;
+    if (loading) return <LoadingSpinner />
+    if (error)   return <ErrorMessage message={error} onRetry={loadData} />
+    if (!data)   return null
 
     switch (activeTab) {
-      case 'lounge':
-        return <LoungeTraffic data={data} />;
-      case 'staffing':
-        return <Staffing data={data} />;
-      case 'food':
-        return <FoodOptimization data={data} />;
-      case 'risk':
-        return <RiskMonitoring data={data} />;
-      case 'customer':
-        return <CustomerExperience data={data} />;
-      default:
-        return <LoungeTraffic data={data} />;
+      case 'lounge':   return <LoungeTraffic data={data} />
+      case 'staffing': return <Staffing data={data} />
+      case 'food':     return <FoodOptimization data={data} />
+      case 'risk':     return <RiskMonitoring data={data} />
+      case 'customer': return <CustomerExperience data={data} />
+      default:         return <LoungeTraffic data={data} />
     }
-  };
+  }
 
+  /* ── Landing page view ── */
+  if (!showDashboard) {
+    return <LandingPage onEnterDashboard={() => setShowDashboard(true)} />
+  }
+
+  /* ── Dashboard view ── */
   return (
-    <div className="App min-h-screen bg-background text-foreground">
-      {/* New hero header with SARA tabs replaces the old Header component */}
-      <HeroSection activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Dashboard tab content — padded below the fixed nav */}
-      <main className="main-content pt-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        {renderTabContent()}
+    <div className="min-h-screen bg-[#0A0A0A]">
+      <DashboardHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onBackToLanding={() => setShowDashboard(false)}
+      />
+      <main className="pt-16 min-h-[calc(100vh-64px)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          {renderTabContent()}
+        </div>
       </main>
     </div>
   )
