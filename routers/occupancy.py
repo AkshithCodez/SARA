@@ -4,10 +4,12 @@ routers/occupancy.py
 SARA – Smart Airport Resource Analytics
 Occupancy API Endpoints
 
-Handles occupancy log insertion.
+Handles occupancy log insertion and retrieval.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from core.database import get_db
@@ -42,3 +44,22 @@ def create_occupancy_log(data: OccupancyLogCreate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(log)
     return log
+
+
+@router.get("/", response_model=List[OccupancyLogResponse])
+def list_occupancy_logs(
+    lounge_id: Optional[int] = Query(None, description="Filter by lounge ID"),
+    db: Session = Depends(get_db),
+) -> List[OccupancyLog]:
+    """
+    Retrieve occupancy logs.
+
+    - **lounge_id**: Optional filter by specific lounge
+    - Returns logs ordered by timestamp descending (latest first)
+    """
+    query = db.query(OccupancyLog)
+
+    if lounge_id is not None:
+        query = query.filter(OccupancyLog.lounge_id == lounge_id)
+
+    return query.order_by(OccupancyLog.timestamp.desc()).all()

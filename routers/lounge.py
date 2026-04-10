@@ -49,3 +49,20 @@ def list_lounges(db: Session = Depends(get_db)) -> List[Lounge]:
     Returns a list of all lounges in the system.
     """
     return db.query(Lounge).all()
+
+
+@router.get("/{lounge_id}", response_model=LoungeResponse)
+def get_lounge(lounge_id: int, db: Session = Depends(get_db)) -> Lounge:
+    """
+    Get a single lounge by ID.
+
+    - **lounge_id**: ID of the lounge to retrieve
+    - Returns 404 if lounge not found
+    """
+    lounge = db.query(Lounge).filter(Lounge.id == lounge_id).first()
+    if not lounge:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lounge with id {lounge_id} not found",
+        )
+    return lounge
