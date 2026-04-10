@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
 from fastapi.security import OAuth2PasswordBearer
 import pandas as pd
 import os
@@ -13,47 +12,12 @@ from optimizer import optimize_resources
 from routers.lounge import router as lounge_router
 from routers.occupancy import router as occupancy_router
 from routers.auth import router as auth_router
+from core.auth import oauth2_scheme
 
 app = FastAPI(title="SARA - Smart Airport Resource Allocator")
 
-# OAuth2 scheme for Swagger UI
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-# -------------------------------
-# Custom OpenAPI schema with security
-# -------------------------------
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
-    
-    openapi_schema = get_openapi(
-        title=app.title,
-        version="1.0.0",
-        description=app.description,
-        routes=app.routes,
-    )
-    
-    openapi_schema["components"]["securitySchemes"] = {
-        "Bearer": {
-            "type": "http",
-            "scheme": "bearer",
-            "description": "JWT token. Click 'Authorize' to enter token.",
-        }
-    }
-    
-    # Add security to all auth routes
-    for path, path_item in openapi_schema["paths"].items():
-        for method, operation in path_item.items():
-            if method in ["get", "post", "put", "delete", "patch"]:
-                if "/auth" in path:
-                    operation["security"] = [{"Bearer": []}]
-    
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-
-app.openapi = custom_openapi
+# OAuth2 scheme - reuse from core.auth for Swagger UI
+# The oauth2_scheme in get_current_user will trigger OAuth2 in Swagger
 
 
 # -------------------------------
