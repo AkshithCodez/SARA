@@ -12,7 +12,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -26,6 +27,8 @@ ALGORITHM: str = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def hash_password(password: str) -> str:
@@ -65,7 +68,7 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
 # =============================================================================
 
 
-def get_current_user(authorization: str = Header(...)) -> Any:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> Any:
     """
     FastAPI dependency to extract and verify the current user from JWT.
 
@@ -88,11 +91,6 @@ def get_current_user(authorization: str = Header(...)) -> Any:
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
-    if not authorization.startswith("Bearer "):
-        raise credentials_exception
-
-    token = authorization.replace("Bearer ", "")
 
     payload = verify_token(token)
     if payload is None:
