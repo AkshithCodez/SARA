@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { fetchPrediction } from './services/api'
 import { LandingPage } from './components/blocks/LandingPage'
 import { DashboardHeader } from './components/blocks/DashboardHeader'
+import { SaraDock } from './components/ui/dock'
 import LoungeTraffic from './components/LoungeTraffic'
 import Staffing from './components/Staffing'
 import FoodOptimization from './components/FoodOptimization'
@@ -50,24 +51,26 @@ function App() {
     }
   }
 
-  /* ── Landing page view ── */
+  /* ── Landing page ── */
   if (!showDashboard) {
     return <LandingPage onEnterDashboard={() => setShowDashboard(true)} />
   }
 
-  /* ── Dashboard view ── */
+  /* ── Dashboard ── */
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
-      <DashboardHeader
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onBackToLanding={() => setShowDashboard(false)}
-      />
-      <main className="pt-16 min-h-[calc(100vh-64px)]">
+      {/* Minimal top bar: logo + back + live */}
+      <DashboardHeader onBackToLanding={() => setShowDashboard(false)} />
+
+      {/* Tab content — top padding for navbar, bottom padding for dock */}
+      <main className="pt-16 pb-32 min-h-[calc(100vh-64px)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {renderTabContent()}
         </div>
       </main>
+
+      {/* Floating bottom dock — 5 SARA tabs */}
+      <SaraDock activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   )
 }
