@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { BarChart2, Zap, Users, ChevronRight, ArrowRight, Plane } from 'lucide-react'
-import { ElegantShape } from '@/components/ui/shape-landing-hero'
+import { BarChart2, Zap, Users, ChevronRight, ArrowRight } from 'lucide-react'
+import { AuroraBackground } from '@/components/ui/aurora-background'
 
 const features = [
   {
@@ -54,49 +54,24 @@ export function LandingPage({ onEnterDashboard }) {
       </nav>
 
       {/* ══════════════════════════════════════════════
-          HERO — animated shape background + SARA content
+          HERO — Aurora background (gold) + SARA content
+          Aurora is ONLY on this section
           ══════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-12 overflow-hidden">
-
-        {/* ── Base dark gradient ── */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0B1A2B] via-[#0A0A0A] to-[#0A0A0A] -z-20" />
-
-        {/* ── Ambient background glow ── */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.04] via-transparent to-yellow-600/[0.04] blur-3xl -z-10" />
-
-        {/* ── ElegantShape floating pills (gold-toned) ── */}
-        <div className="absolute inset-0 overflow-hidden -z-10">
-          <ElegantShape delay={0.3} width={600} height={140} rotate={12}  gradient="from-amber-500/[0.12]"  className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]" />
-          <ElegantShape delay={0.5} width={500} height={120} rotate={-15} gradient="from-yellow-600/[0.10]" className="right-[-5%] md:right-[0%] top-[65%] md:top-[70%]" />
-          <ElegantShape delay={0.4} width={300} height={80}  rotate={-8}  gradient="from-amber-400/[0.09]"  className="left-[5%] md:left-[10%] bottom-[8%] md:bottom-[12%]" />
-          <ElegantShape delay={0.6} width={220} height={60}  rotate={20}  gradient="from-yellow-500/[0.10]" className="right-[15%] md:right-[20%] top-[10%] md:top-[14%]" />
-          <ElegantShape delay={0.7} width={160} height={44}  rotate={-25} gradient="from-amber-300/[0.08]"  className="left-[20%] md:left-[25%] top-[5%] md:top-[8%]" />
-        </div>
-
-        {/* ── Gold dot grid ── */}
-        <div
-          className="absolute inset-0 -z-10 opacity-[0.06]"
-          style={{ backgroundImage: 'radial-gradient(circle, #D4AF37 1px, transparent 1px)', backgroundSize: '52px 52px' }}
-        />
-
-        {/* ── Radial gold glow ── */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[#D4AF37]/5 blur-[130px] -z-10" />
-
-        {/* ── Top/bottom fade vignette ── */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/70 pointer-events-none -z-10" />
-
-        {/* ── SARA Hero Content ── */}
+      <AuroraBackground
+        className="min-h-screen pt-24 pb-16 px-6 text-center"
+        showRadialGradient={true}
+      >
         <motion.div
           initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.1, ease: 'easeOut' }}
-          className="max-w-3xl w-full relative z-10"
+          className="max-w-3xl w-full relative z-10 flex flex-col items-center"
         >
           {/* Hero logo */}
           <motion.img
             src="/hero-logo.png"
             alt="SARA"
-            className="h-28 md:h-36 w-auto object-contain mx-auto mb-10 drop-shadow-[0_0_40px_rgba(212,175,55,0.35)]"
+            className="h-28 md:h-36 w-auto object-contain mx-auto mb-10 drop-shadow-[0_0_40px_rgba(212,175,55,0.4)]"
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.2, ease: 'easeOut' }}
@@ -107,7 +82,7 @@ export function LandingPage({ onEnterDashboard }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/[0.08] border border-[#D4AF37]/[0.18] mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/[0.08] border border-[#D4AF37]/[0.22] mb-6"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_6px_#D4AF37]" />
             <span className="text-sm text-[#D4AF37]/80 tracking-widest uppercase font-semibold">
@@ -163,21 +138,10 @@ export function LandingPage({ onEnterDashboard }) {
             </a>
           </motion.div>
         </motion.div>
+      </AuroraBackground>
 
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.6 }}
-          className="absolute bottom-10 flex flex-col items-center gap-2 text-[#9CA3AF]/40 text-xs z-10"
-        >
-          <Plane className="size-4 rotate-90 text-[#D4AF37]/30 animate-bounce" />
-          <span>Scroll to explore</span>
-        </motion.div>
-      </section>
-
-      {/* ── Features ── */}
-      <section id="features" className="py-24 px-6">
+      {/* ── Features — plain dark background, NO aurora ── */}
+      <section id="features" className="py-24 px-6 bg-[#0A0A0A]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[#D4AF37] text-xs font-semibold tracking-[0.2em] uppercase mb-3">Capabilities</p>
@@ -195,7 +159,7 @@ export function LandingPage({ onEnterDashboard }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ delay: i * 0.12, duration: 0.6 }}
-                className="group rounded-2xl border border-[#D4AF37]/12 bg-gradient-to-b from-[#0B1A2B]/80 to-[#0A0A0A]/60 backdrop-blur-sm p-8 hover:border-[#D4AF37]/35 hover:bg-[#D4AF37]/4 hover:shadow-[0_8px_48px_rgba(212,175,55,0.09)] transition-all duration-300"
+                className="group rounded-2xl border border-[#D4AF37]/12 bg-gradient-to-b from-[#0B1A2B]/80 to-[#0A0A0A]/60 backdrop-blur-sm p-8 hover:border-[#D4AF37]/35 hover:shadow-[0_8px_48px_rgba(212,175,55,0.09)] transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 flex items-center justify-center mb-6 group-hover:border-[#D4AF37]/50 group-hover:bg-[#D4AF37]/15 transition-all duration-300">
                   <f.icon className="size-5 text-[#D4AF37]" />
@@ -208,8 +172,8 @@ export function LandingPage({ onEnterDashboard }) {
         </div>
       </section>
 
-      {/* ── Stats strip ── */}
-      <section id="stats" className="py-16 px-6 border-y border-[#D4AF37]/8">
+      {/* ── Stats strip — plain dark, NO aurora ── */}
+      <section id="stats" className="py-16 px-6 bg-[#0A0A0A] border-y border-[#D4AF37]/8">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
           {stats.map(([val, label], i) => (
             <motion.div
@@ -228,8 +192,8 @@ export function LandingPage({ onEnterDashboard }) {
         </div>
       </section>
 
-      {/* ── About / CTA ── */}
-      <section id="about" className="py-24 px-6">
+      {/* ── About / CTA — plain dark, NO aurora ── */}
+      <section id="about" className="py-24 px-6 bg-[#0A0A0A]">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-[#D4AF37] text-xs font-semibold tracking-[0.2em] uppercase mb-3">About SARA</p>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
@@ -251,7 +215,7 @@ export function LandingPage({ onEnterDashboard }) {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="pb-10 px-6 border-t border-[#D4AF37]/8">
+      <footer className="pb-10 px-6 bg-[#0A0A0A] border-t border-[#D4AF37]/8">
         <div className="max-w-5xl mx-auto pt-10 flex flex-col md:flex-row items-center justify-between gap-5">
           <img src="/nav-logo.png" alt="SARA" className="h-7 w-auto object-contain opacity-60" />
           <p className="text-[#9CA3AF]/40 text-xs text-center">

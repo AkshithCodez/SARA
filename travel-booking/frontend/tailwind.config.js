@@ -1,4 +1,15 @@
 /** @type {import('tailwindcss').Config} */
+import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
+
+// Injects every Tailwind color as a CSS variable — required for the aurora gradients
+function addVariablesForColors({ addBase, theme }) {
+  const allColors = flattenColorPalette(theme('colors'))
+  const newVars = Object.fromEntries(
+    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
+  )
+  addBase({ ':root': newVars })
+}
+
 export default {
   darkMode: ['class'],
   content: [
@@ -59,10 +70,20 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        gold:     '0 0 24px rgba(212, 175, 55, 0.25)',
+        gold:      '0 0 24px rgba(212, 175, 55, 0.25)',
         'gold-lg': '0 0 48px rgba(212, 175, 55, 0.35)',
+      },
+      /* Aurora animation */
+      animation: {
+        aurora: 'aurora 60s linear infinite',
+      },
+      keyframes: {
+        aurora: {
+          from: { backgroundPosition: '50% 50%, 50% 50%' },
+          to:   { backgroundPosition: '350% 50%, 350% 50%' },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [addVariablesForColors],
 }

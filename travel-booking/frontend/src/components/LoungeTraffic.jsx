@@ -78,17 +78,17 @@ const LoungeTraffic = ({ data }) => {
             <LineChart data={chartData}>
               <defs>
                 <linearGradient id="colorCustomers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#22D3EE" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#22D3EE" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(59, 130, 246, 0.1)" />
-              <XAxis 
-                dataKey="hour" 
+              <XAxis
+                dataKey="hour"
                 stroke="#94A3B8"
                 style={{ fontSize: '0.875rem' }}
               />
-              <YAxis 
+              <YAxis
                 stroke="#94A3B8"
                 style={{ fontSize: '0.875rem' }}
               />
@@ -99,10 +99,10 @@ const LoungeTraffic = ({ data }) => {
                 stroke="none"
                 fill="url(#colorCustomers)"
               />
-              <Line 
-                type="monotone" 
-                dataKey="customers" 
-                stroke="#22D3EE" 
+              <Line
+                type="monotone"
+                dataKey="customers"
+                stroke="#22D3EE"
                 strokeWidth={3}
                 dot={{ fill: '#22D3EE', r: 6, strokeWidth: 2, stroke: '#0B0F19' }}
                 activeDot={{ r: 8, fill: '#22D3EE', stroke: '#0B0F19', strokeWidth: 2 }}
