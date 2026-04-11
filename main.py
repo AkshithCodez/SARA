@@ -12,6 +12,7 @@ from optimizer import optimize_resources
 from routers.lounge import router as lounge_router
 from routers.occupancy import router as occupancy_router
 from routers.auth import router as auth_router
+from routers.telemetry import router as telemetry_router
 from core.auth import oauth2_scheme
 
 app = FastAPI(title="SARA - Smart Airport Resource Allocator")
@@ -37,6 +38,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(lounge_router)
 app.include_router(occupancy_router)
+app.include_router(telemetry_router)
 
 # -------------------------------
 # ML Setup (existing)

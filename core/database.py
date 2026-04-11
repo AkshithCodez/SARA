@@ -20,6 +20,7 @@ import os
 import logging
 from contextlib import contextmanager
 from typing import Generator
+from sqlalchemy.dialects.postgresql import UUID
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, event, text

@@ -2,7 +2,7 @@
 core/models.py
 ==============
 SARA – Smart Airport Resource Analytics
-SQLAlchemy ORM Models
+SQLAlchemy ORM Models (UUID-based)
 
 Defines the database schema for a multi-tenant system.
 All models inherit from Base defined in core.database.
@@ -16,7 +16,8 @@ Relationships:
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Index, String, func
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
@@ -30,7 +31,11 @@ class Airline(Base):
 
     __tablename__ = "airlines"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=lambda: str(__import__("uuid").uuid4()),
+    )
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -55,12 +60,16 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=lambda: str(__import__("uuid").uuid4()),
+    )
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[str] = mapped_column(String(50), nullable=False)  # admin, manager
-    airline_id: Mapped[int] = mapped_column(
-        Integer,
+    role: Mapped[str] = mapped_column(String(50), nullable=False)
+    airline_id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("airlines.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -83,12 +92,16 @@ class Lounge(Base):
 
     __tablename__ = "lounges"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=lambda: str(__import__("uuid").uuid4()),
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    location: Mapped[str] = mapped_column(String(255), nullable=False)  # e.g., Terminal A
-    capacity: Mapped[int] = mapped_column(Integer, nullable=False)
-    airline_id: Mapped[int] = mapped_column(
-        Integer,
+    location: Mapped[str] = mapped_column(String(255), nullable=False)
+    capacity: Mapped[int] = mapped_column(nullable=False)
+    airline_id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("airlines.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -115,9 +128,13 @@ class OccupancyLog(Base):
 
     __tablename__ = "occupancy_logs"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    lounge_id: Mapped[int] = mapped_column(
-        Integer,
+    id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=lambda: str(__import__("uuid").uuid4()),
+    )
+    lounge_id: Mapped[str] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("lounges.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -127,7 +144,7 @@ class OccupancyLog(Base):
         nullable=False,
         index=True,
     )
-    passenger_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    passenger_count: Mapped[int] = mapped_column(nullable=False)
 
     lounge: Mapped["Lounge"] = relationship("Lounge", back_populates="occupancy_logs")
 

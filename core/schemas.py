@@ -10,6 +10,7 @@ Uses Pydantic v2 with ConfigDict for ORM mode.
 
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -65,14 +66,14 @@ class OccupancyLogBase(BaseModel):
 class OccupancyLogCreate(OccupancyLogBase):
     """Schema for creating a new occupancy log entry."""
 
-    lounge_id: int = Field(..., gt=0)
+    lounge_id: UUID = Field(..., gt=0)
 
 
 class OccupancyLogResponse(OccupancyLogBase):
     """Schema for occupancy log responses."""
 
     id: int
-    lounge_id: int
+    lounge_id: UUID
     timestamp: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -157,3 +158,24 @@ class TokenResponse(BaseModel):
 
     access_token: str
     token_type: str = "bearer"
+
+
+# =============================================================================
+# Telemetry Schemas
+# =============================================================================
+
+
+class OccupancyTelemetryRequest(BaseModel):
+    """Request schema for occupancy telemetry ingestion."""
+
+    lounge_id: UUID = Field(..., description="UUID of the lounge")
+    timestamp: datetime = Field(..., description="Timestamp of the reading")
+    delta: int = Field(..., ge=-100, le=100, description="Change in occupancy (-100 to 100)")
+    total_occupancy: int = Field(..., ge=0, description="Current total occupancy")
+
+
+class TelemetryResponse(BaseModel):
+    """Response schema for telemetry ingestion."""
+
+    status: str
+    message: str
