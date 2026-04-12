@@ -8,6 +8,7 @@ Handles lounge creation and listing with multi-tenant security.
 """
 
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -67,18 +68,18 @@ def list_lounges(
 
 @router.get("/{lounge_id}", response_model=LoungeResponse)
 def get_lounge(
-    lounge_id: int,
+    lounge_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Lounge:
     """
     Get a single lounge by ID.
 
-    - **lounge_id**: ID of the lounge to retrieve
+    - **lounge_id**: UUID of the lounge to retrieve
     - Returns 404 if lounge not found
     - Returns 403 if lounge belongs to another airline
     """
-    lounge = db.query(Lounge).filter(Lounge.id == lounge_id).first()
+    lounge = db.query(Lounge).filter(Lounge.id == str(lounge_id)).first()
     if not lounge:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

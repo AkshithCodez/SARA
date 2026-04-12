@@ -31,7 +31,7 @@ class LoungeBase(BaseModel):
 class LoungeCreate(LoungeBase):
     """Schema for creating a new lounge."""
 
-    airline_id: int = Field(..., gt=0)
+    airline_id: UUID = Field(..., description="UUID of the airline")
 
 
 class LoungeUpdate(BaseModel):
@@ -45,8 +45,8 @@ class LoungeUpdate(BaseModel):
 class LoungeResponse(LoungeBase):
     """Schema for lounge responses."""
 
-    id: int
-    airline_id: int
+    id: UUID
+    airline_id: UUID
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -97,7 +97,7 @@ class AirlineCreate(AirlineBase):
 class AirlineResponse(AirlineBase):
     """Schema for airline responses."""
 
-    id: int
+    id: str
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -119,14 +119,14 @@ class UserCreate(UserBase):
     """Schema for creating a new user."""
 
     hashed_password: str = Field(..., max_length=255)
-    airline_id: int = Field(..., gt=0)
+    airline_id: UUID = Field(..., description="UUID of the airline")
 
 
 class UserResponse(UserBase):
     """Schema for user responses (excludes password)."""
 
-    id: int
-    airline_id: int
+    id: str
+    airline_id: str
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -143,7 +143,7 @@ class SignupRequest(BaseModel):
     email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=6, max_length=255)
     role: str = Field(..., max_length=50)
-    airline_id: int = Field(..., gt=0)
+    airline_id: UUID = Field(..., description="UUID of the airline")
 
 
 class LoginRequest(BaseModel):

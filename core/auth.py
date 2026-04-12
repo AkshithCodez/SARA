@@ -10,6 +10,7 @@ Provides password hashing, JWT token utilities, and FastAPI dependencies.
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
+from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
@@ -100,9 +101,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Any:
     if user_id is None:
         raise credentials_exception
 
+    try:
+        user_uuid = UUID(user_id)
+    except (ValueError, TypeError):
+        raise credentials_exception
+
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.id == int(user_id)).first()
+        user = db.query(User).filter(User.id == str(user_uuid)).first()
         if user is None:
             raise credentials_exception
         return user

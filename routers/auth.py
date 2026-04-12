@@ -38,7 +38,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)) -> TokenResponse:
             detail="Email already registered",
         )
 
-    airline = db.query(Airline).filter(Airline.id == data.airline_id).first()
+    airline = db.query(Airline).filter(Airline.id == str(data.airline_id)).first()
     if not airline:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -49,7 +49,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)) -> TokenResponse:
         email=data.email,
         hashed_password=hash_password(data.password),
         role=data.role,
-        airline_id=data.airline_id,
+        airline_id=str(data.airline_id),
     )
     db.add(user)
     db.commit()
