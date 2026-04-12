@@ -13,6 +13,7 @@ from routers.lounge import router as lounge_router
 from routers.occupancy import router as occupancy_router
 from routers.auth import router as auth_router
 from routers.telemetry import router as telemetry_router
+from routers.predict import router as predict_router
 from core.auth import oauth2_scheme
 
 app = FastAPI(title="SARA - Smart Airport Resource Allocator")
@@ -39,12 +40,12 @@ app.include_router(auth_router)
 app.include_router(lounge_router)
 app.include_router(occupancy_router)
 app.include_router(telemetry_router)
+app.include_router(predict_router)
 
 # -------------------------------
 # ML Setup (existing)
 # -------------------------------
 MODEL_PATH = 'model.pkl'
-DATA_PATH = 'data.csv'
 
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found: {MODEL_PATH}. Run setup.py first.")
@@ -57,29 +58,3 @@ model = load_model(MODEL_PATH)
 @app.get("/")
 def root():
     return {"status": "SARA backend is running", "version": "3.0"}
-
-# -------------------------------
-# EXISTING ML ENDPOINT (keep)
-# -------------------------------
-@app.get("/predict")
-def predict():
-    try:
-        if not os.path.exists(DATA_PATH):
-            raise FileNotFoundError(f"Data file not found: {DATA_PATH}")
-        
-        df = pd.read_csv(DATA_PATH)
-
-        forecast = forecast_next_hours(model, df, hours=6)
-        optimization = optimize_resources(forecast)
-
-        return {
-            "forecast": [round(val, 2) for val in forecast],
-            "confidence_margin": [round(val, 2) for val in optimization['confidence_margin']],
-            "risk_level": optimization['risk_level'],
-            "staff_required": optimization['staff_required'],
-            "food_required": [round(val, 2) for val in optimization['food_required']],
-            "estimated_cost": optimization['estimated_cost']
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
