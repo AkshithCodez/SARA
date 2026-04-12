@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { BarChart2, Zap, Users, ChevronRight, ArrowRight } from 'lucide-react'
 import { AuroraBackground } from '@/components/ui/aurora-background'
@@ -29,7 +30,18 @@ const stats = [
 ]
 
 /* ── Main export ── */
-export function LandingPage({ onEnterDashboard }) {
+export function LandingPage() {
+  const navigate = useNavigate()
+  const token = localStorage.getItem('token')
+  
+  const handleEnter = () => {
+    if (token) {
+      navigate('/dashboard')
+    } else {
+      navigate('/login')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white overflow-x-hidden">
 
@@ -44,12 +56,42 @@ export function LandingPage({ onEnterDashboard }) {
             <a href="#about"    className="hover:text-[#D4AF37] transition-colors duration-200">About</a>
           </div>
 
-          <button
-            onClick={onEnterDashboard}
-            className="flex items-center gap-2 rounded-lg border border-[#D4AF37]/50 bg-[#D4AF37]/10 px-4 py-2 text-sm font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:shadow-[0_0_24px_rgba(212,175,55,0.25)] transition-all duration-300"
-          >
-            Open Dashboard <ChevronRight className="size-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            {token ? (
+              <>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="flex items-center gap-2 rounded-lg border border-[#D4AF37]/50 bg-[#D4AF37]/10 px-4 py-2 text-sm font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:shadow-[0_0_24px_rgba(212,175,55,0.25)] transition-all duration-300"
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token')
+                    navigate('/')
+                  }}
+                  className="rounded-lg px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="rounded-lg px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={handleEnter}
+                  className="flex items-center gap-2 rounded-lg border border-[#D4AF37]/50 bg-[#D4AF37]/10 px-4 py-2 text-sm font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:shadow-[0_0_24px_rgba(212,175,55,0.25)] transition-all duration-300"
+                >
+                  Open Dashboard <ChevronRight className="size-4" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -124,7 +166,7 @@ export function LandingPage({ onEnterDashboard }) {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <button
-              onClick={onEnterDashboard}
+              onClick={handleEnter}
               className="group flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#E6C27A] text-[#0A0A0A] font-bold text-base hover:shadow-[0_0_45px_rgba(212,175,55,0.45)] hover:scale-[1.03] transition-all duration-300"
             >
               Enter Dashboard
@@ -205,7 +247,7 @@ export function LandingPage({ onEnterDashboard }) {
             one step ahead of demand.
           </p>
           <button
-            onClick={onEnterDashboard}
+            onClick={handleEnter}
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#E6C27A] text-[#0A0A0A] font-bold text-base hover:shadow-[0_0_45px_rgba(212,175,55,0.4)] hover:scale-[1.03] transition-all duration-300"
           >
             Launch Dashboard

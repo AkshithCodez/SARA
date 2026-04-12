@@ -10,21 +10,63 @@ const api = axios.create({
   },
 });
 
-export const fetchPrediction = async () => {
-  try {
-    const response = await api.get('/predict');
-    return response.data;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Request timeout. Please try again.');
-    } else if (error.response) {
-      throw new Error(`Server error: ${error.response.status}`);
-    } else if (error.request) {
-      throw new Error('Cannot connect to backend. Please ensure the server is running at http://localhost:8000');
-    } else {
-      throw new Error('An unexpected error occurred.');
-    }
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const login = async (email, password) => {
+  const formData = new URLSearchParams();
+  formData.append('username', email);
+  formData.append('password', password);
+  const response = await api.post('/auth/login', formData, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
+  return response.data;
+};
+
+export const signup = async (email, password, role, airlineId) => {
+  const response = await api.post('/auth/signup', {
+    email,
+    password,
+    role,
+    airline_id: airlineId,
+  });
+  return response.data;
+};
+
+export const fetchLounges = async () => {
+  const response = await api.get('/lounges/');
+  return response.data;
+};
+
+export const fetchLounge = async (loungeId) => {
+  const response = await api.get(`/lounges/${loungeId}`);
+  return response.data;
+};
+
+export const fetchForecast = async (loungeId) => {
+  const response = await api.get(`/lounges/${loungeId}/forecast`);
+  return response.data;
+};
+
+export const fetchPrediction = async () => {
+  const response = await api.get('/predict');
+  return response.data;
 };
 
 export default api;
