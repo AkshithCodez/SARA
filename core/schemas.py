@@ -168,9 +168,9 @@ class TokenResponse(BaseModel):
 class OccupancyTelemetryRequest(BaseModel):
     """Request schema for occupancy telemetry ingestion."""
 
-    lounge_id: UUID = Field(..., description="UUID of the lounge")
+    lounge_id: str = Field(..., description="UUID of the lounge")
     timestamp: datetime = Field(..., description="Timestamp of the reading")
-    delta: int = Field(..., ge=-100, le=100, description="Change in occupancy (-100 to 100)")
+    delta: int = Field(..., description="Change in occupancy")
     total_occupancy: int = Field(..., ge=0, description="Current total occupancy")
 
 

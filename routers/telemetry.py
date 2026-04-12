@@ -7,19 +7,22 @@ Telemetry Ingestion Router
 Handles POST /api/v1/telemetry/occupancy endpoint.
 """
 
+import logging
+
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
 from core.database import get_db
 from core.schemas import OccupancyTelemetryRequest, TelemetryResponse
 from services.telemetry_service import (
-    TelemetryAuthenticationError,
     TelemetryValidationError,
     ingest_telemetry,
     validate_api_key,
 )
 
 router = APIRouter(prefix="/api/v1/telemetry", tags=["telemetry"])
+
+logger = logging.getLogger(__name__)
 
 
 @router.post("/occupancy", response_model=TelemetryResponse)
@@ -33,9 +36,9 @@ def ingest_occupancy_telemetry(
     
     Requires API key authentication via x-api-key header.
     
-    - **lounge_id**: ID of the lounge
+    - **lounge_id**: UUID of the lounge
     - **timestamp**: Timestamp of the reading
-    - **delta**: Change in occupancy
+    - **delta**: Change in occupancy (not validated strictly)
     - **total_occupancy**: Current total occupancy
     """
     try:
@@ -50,17 +53,21 @@ def ingest_occupancy_telemetry(
             detail=str(e),
         )
 
-    try:
-        result = ingest_telemetry(
-            db=db,
-            lounge_id=data.lounge_id,
-            timestamp=data.timestamp,
-            delta=data.delta,
-            total_occupancy=data.total_occupancy,
-        )
-        return TelemetryResponse(**result)
-    except TelemetryValidationError as e:
+    result = ingest_telemetry(
+        db=db,
+        lounge_id=str(data.lounge_id),
+        timestamp=data.timestamp,
+        delta=data.delta,
+        total_occupancy=data.total_occupancy,
+    )
+    
+    if result.get("status") == "error":
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=result.get("message", "Lounge not found"),
         )
+    
+    return TelemetryResponse(
+        status=result.get("status", "success"),
+        message=result.get("message", "Telemetry ingested"),
+    )

@@ -5,11 +5,13 @@ SARA – Smart Airport Resource Allocator
 Telemetry Ingestion Service
 
 Business logic for processing occupancy telemetry data.
+Tolerant of minor inconsistencies - trusts incoming data.
 """
 
 import os
+import logging
 from datetime import datetime
-from typing import Optional
+from uuid import UUID
 
 from dotenv import load_dotenv
 from sqlalchemy import and_
@@ -19,17 +21,14 @@ from core.models import Lounge, OccupancyLog
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 API_KEY = os.getenv("TELEMETRY_API_KEY", "")
-MAX_DELTA = 100
+MAX_DELTA = 200
 
 
 class TelemetryValidationError(Exception):
     """Raised when telemetry data fails validation."""
-    pass
-
-
-class TelemetryAuthenticationError(Exception):
-    """Raised when API key authentication fails."""
     pass
 
 
@@ -48,70 +47,73 @@ def validate_telemetry(
     """
     Validate telemetry data rules.
     
-    Raises:
-        TelemetryValidationError: If validation fails
+    Relaxed validation - trusts incoming data.
     """
     if total_occupancy < 0:
         raise TelemetryValidationError("total_occupancy must be >= 0")
     
     if abs(delta) > MAX_DELTA:
-        raise TelemetryValidationError(f"delta exceeds maximum allowed value ({MAX_DELTA})")
+        logger.warning(f"Delta {delta} exceeds typical range, but accepting")
     
     now = datetime.now(timestamp.tzinfo) if timestamp.tzinfo else datetime.now()
-    if timestamp > now:
-        raise TelemetryValidationError("timestamp cannot be in the future")
+    if timestamp.replace(tzinfo=None) > now.replace(tzinfo=None):
+        logger.warning("Timestamp is in the future, but accepting")
+
+
+def normalize_timestamp(timestamp: datetime) -> datetime:
+    """Normalize timestamp to prevent duplicate issues from precision differences."""
+    if timestamp.tzinfo is not None:
+        timestamp = timestamp.replace(tzinfo=None)
+    return timestamp.replace(second=0, microsecond=0)
 
 
 def process_telemetry(
     db: Session,
-    lounge_id: int,
+    lounge_id: str,
     timestamp: datetime,
     delta: int,
     total_occupancy: int,
-) -> bool:
+) -> dict:
     """
-    Process and store telemetry data with idempotency.
+    Process and store telemetry data.
     
-    Args:
-        db: Database session
-        lounge_id: ID of the lounge
-        timestamp: Timestamp of the reading
-        delta: Change in occupancy
-        total_occupancy: Current total occupancy
-    
-    Returns:
-        True if ingested, False if duplicate
+    Relaxed idempotency - trusts incoming total_occupancy as source of truth.
     """
+    normalized_ts = normalize_timestamp(timestamp)
+    
     existing = db.query(OccupancyLog).filter(
         and_(
             OccupancyLog.lounge_id == lounge_id,
-            OccupancyLog.timestamp == timestamp,
+            OccupancyLog.timestamp == normalized_ts,
         )
     ).first()
 
     if existing:
-        if existing.passenger_count != total_occupancy:
-            existing.passenger_count = total_occupancy
-            db.commit()
-        return False
+        existing.passenger_count = total_occupancy
+        db.commit()
+        logger.info(f"Updated occupancy for lounge {lounge_id} at {normalized_ts}")
+        return {"status": "success", "message": "Telemetry updated", "created": False}
 
     lounge = db.query(Lounge).filter(Lounge.id == lounge_id).first()
     if not lounge:
-        return False
+        logger.warning(f"Lounge {lounge_id} not found")
+        return {"status": "error", "message": "Lounge not found", "created": False}
 
     log = OccupancyLog(
         lounge_id=lounge_id,
-        timestamp=timestamp,
+        timestamp=normalized_ts,
         passenger_count=total_occupancy,
     )
     db.add(log)
     db.commit()
-    return True
+    logger.info(f"Inserted occupancy for lounge {lounge_id} at {normalized_ts}: {total_occupancy}")
+    
+    return {"status": "success", "message": "Telemetry ingested", "created": True}
 
 
 def ingest_telemetry(
     db: Session,
-    lounge_id: int,
+    lounge_id: str,
     timestamp: datetime,
     delta: int,
     total_occupancy: int,
@@ -121,10 +123,11 @@ def ingest_telemetry(
     
     Validates, processes, and stores telemetry data.
     """
-    validate_telemetry(total_occupancy, delta, timestamp)
-    ingested = process_telemetry(db, lounge_id, timestamp, delta, total_occupancy)
+    try:
+        validate_telemetry(total_occupancy, delta, timestamp)
+    except TelemetryValidationError as e:
+        logger.warning(f"Validation warning: {e}")
     
-    return {
-        "status": "success",
-        "message": "Telemetry ingested" if ingested else "Telemetry already exists (duplicate)",
-    }
+    result = process_telemetry(db, lounge_id, timestamp, delta, total_occupancy)
+    
+    return result
